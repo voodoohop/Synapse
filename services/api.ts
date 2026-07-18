@@ -145,7 +145,7 @@ export const sendChatCompletion = async (
 
         try {
           const data: ChatCompletionChunk = JSON.parse(trimmedLine.slice(6));
-          const content = data.choices[0]?.delta?.content;
+          const content = data.choices?.[0]?.delta?.content;
           if (content) onChunk(content);
         } catch (error) {
           console.warn('Error parsing stream chunk', error);
