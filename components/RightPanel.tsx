@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { X, MessageSquare, Sliders, Info, Zap } from 'lucide-react';
+import { X, MessageSquare, Sliders, Info, Zap, KeyRound } from 'lucide-react';
 
 interface RightPanelProps {
   isOpen: boolean;
@@ -15,6 +15,9 @@ interface RightPanelProps {
 
   systemInstruction: string;
   onSystemInstructionChange: (value: string) => void;
+
+  apiKey: string;
+  onApiKeyChange: (value: string) => void;
 }
 
 const RightPanelComponent: React.FC<RightPanelProps> = ({
@@ -26,7 +29,9 @@ const RightPanelComponent: React.FC<RightPanelProps> = ({
   enableStreaming,
   onToggleStreaming,
   systemInstruction,
-  onSystemInstructionChange
+  onSystemInstructionChange,
+  apiKey,
+  onApiKeyChange
 }) => {
   return (
     <aside className={`
@@ -56,6 +61,31 @@ const RightPanelComponent: React.FC<RightPanelProps> = ({
 
       {/* Content */}
       <div className="flex-1 overflow-y-auto p-4 space-y-6">
+
+        {/* Pollinations Key */}
+        <div className="space-y-2">
+          <label className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-latte-subtext1 dark:text-mocha-overlay0" htmlFor="pollinations-key">
+            <KeyRound size={12} />
+            Pollinations Key
+          </label>
+          <input
+            id="pollinations-key"
+            type="password"
+            value={apiKey}
+            onChange={(event) => onApiKeyChange(event.target.value.trim())}
+            placeholder="pk_..."
+            autoComplete="off"
+            className="w-full text-sm rounded-lg p-2.5 outline-none transition-all
+              bg-latte-mantle border border-latte-surface0 text-latte-text focus:border-latte-blue
+              dark:bg-mocha-surface0 dark:border-mocha-surface1 dark:text-mocha-text dark:focus:border-mocha-mauve"
+          />
+          <p className="text-[10px] text-latte-subtext1 dark:text-mocha-overlay0">
+            Use a browser-safe <code>pk_</code> key from{' '}
+            <a className="underline" href="https://enter.pollinations.ai" target="_blank" rel="noreferrer">enter.pollinations.ai</a>.
+          </p>
+        </div>
+
+        <hr className="border-latte-surface0 dark:border-mocha-surface0 opacity-50" />
         
         {/* System Instruction */}
         <div className="space-y-2">

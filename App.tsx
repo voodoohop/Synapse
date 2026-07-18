@@ -11,6 +11,7 @@ import { v4 as uuidv4 } from 'uuid';
 const STORAGE_KEY_SESSIONS = 'pollinations_sessions_v1';
 const STORAGE_KEY_THEME = 'pollinations_theme';
 const STORAGE_KEY_MODELS = 'pollinations_default_model';
+const STORAGE_KEY_API_KEY = 'pollinations_publishable_key';
 
 const App: React.FC = () => {
   // --- State ---
@@ -50,6 +51,10 @@ const App: React.FC = () => {
   const [defaultModel, setDefaultModel] = useState(() => {
     return localStorage.getItem(STORAGE_KEY_MODELS) || 'openai';
   });
+  const [apiKey, setApiKey] = useState(() => {
+    const storedKey = localStorage.getItem(STORAGE_KEY_API_KEY) || '';
+    return storedKey.startsWith('pk_') ? storedKey : '';
+  });
   
   const [error, setError] = useState<string | null>(null);
 
@@ -86,7 +91,7 @@ const App: React.FC = () => {
   useEffect(() => {
     const loadModels = async () => {
       try {
-        const { textModels: fetchedModels } = await fetchModels();
+        const { textModels: fetchedModels } = await fetchModels(apiKey);
         
         let finalModels = fetchedModels.length ? fetchedModels : ['openai'];
         
@@ -105,7 +110,7 @@ const App: React.FC = () => {
       }
     };
     loadModels();
-  }, []); // Intentionally empty dependency array for mount only
+  }, [apiKey]);
 
   // 3. Init Sessions / Default Session
   useEffect(() => {
@@ -138,6 +143,11 @@ const App: React.FC = () => {
   useEffect(() => {
       localStorage.setItem(STORAGE_KEY_MODELS, defaultModel);
   }, [defaultModel]);
+
+  useEffect(() => {
+      if (apiKey.startsWith('pk_')) localStorage.setItem(STORAGE_KEY_API_KEY, apiKey);
+      else localStorage.removeItem(STORAGE_KEY_API_KEY);
+  }, [apiKey]);
 
   // 6. Auto-scroll
   useEffect(() => {
@@ -318,6 +328,7 @@ const App: React.FC = () => {
         await sendChatCompletion(
             apiMessages, 
             model, 
+            apiKey,
             (chunk) => {
                 setSessions(prev => prev.map(s => {
                     if (s.id === currentSessionId) {
@@ -350,9 +361,9 @@ const App: React.FC = () => {
             return s;
         }));
 
-    } catch (err: any) {
+    } catch (err) {
         console.error(err);
-        setError(err.message || "Failed to generate response");
+        setError(err instanceof Error ? err.message : 'Failed to generate response');
         setSessions(prev => prev.map(s => {
              if (s.id === currentSessionId) {
                  // Remove empty bot message on failure
@@ -370,10 +381,15 @@ const App: React.FC = () => {
     } finally {
         setIsLoading(false);
     }
-  }, [currentSessionId, getSystemInstruction]); // Depend on ID and system instruction getter
+  }, [apiKey, currentSessionId, getSystemInstruction]);
 
   const handleSendMessage = useCallback(async () => {
     if ((!input.trim() && selectedImages.length === 0) || isLoading) return;
+    if (!apiKey.startsWith('pk_')) {
+      setError('Add a browser-safe Pollinations pk_ key in Configuration.');
+      setIsRightPanelOpen(true);
+      return;
+    }
     
     const session = getCurrentSession();
     if (!session) return; 
@@ -406,13 +422,13 @@ const App: React.FC = () => {
     setError(null);
     
     if (isFirstMessage && textContent) {
-        generateChatTitle(textContent, activeModel).then(title => {
+        generateChatTitle(textContent, activeModel, apiKey).then(title => {
             if (title) handleRenameChat(session.id, title);
         });
     }
 
     await handleTextGeneration(updatedMessages, activeModel, session.enableStreaming ?? true);
-  }, [input, selectedImages, isLoading, getCurrentSession, defaultModel, updateCurrentSession, handleTextGeneration, handleRenameChat]);
+  }, [apiKey, input, selectedImages, isLoading, getCurrentSession, defaultModel, updateCurrentSession, handleTextGeneration, handleRenameChat]);
 
   const handleEditMessage = useCallback(async (id: string, newContent: string) => {
     if (isLoading) return;
@@ -681,6 +697,8 @@ const App: React.FC = () => {
         onToggleStreaming={handleStreamingToggle}
         systemInstruction={getSystemInstruction()}
         onSystemInstructionChange={handleSystemInstructionChange}
+        apiKey={apiKey}
+        onApiKeyChange={setApiKey}
       />
 
     </div>

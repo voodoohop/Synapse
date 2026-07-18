@@ -30,14 +30,7 @@ To get started with Synapse locally, follow these steps:
     yarn install
     ```
 
-3.  **Set Up Environment Variables:**
-    Create a `.env` file in the root directory and add your Pollinations API key:
-    ```
-    API_KEY=your_pollinations_api_key_here
-    ```
-    *(Note: You can obtain an API key from [Pollinations](https://auth.pollinations.ai/))*
-
-4.  **Run the Development Server:**
+3.  **Run the Development Server:**
     ```bash
     npm run dev
     # or
@@ -49,20 +42,15 @@ To get started with Synapse locally, follow these steps:
 
 Once the development server is running, you can access the application in your browser:
 
-1. **Select a Model:** Use the settings panel on the right to choose your preferred AI model.
-2. **Start Chatting:** Type your message in the input field and press Enter or click the send button.
-3. **Add Images:** Click the attachment button to add images to your messages for multimodal conversations.
-4. **Manage Sessions:** Create new chat sessions from the sidebar, or click on existing sessions to switch between them.
-5. **Customize Behavior:** Set system instructions in the settings panel to guide how the AI responds.
-6. **Switch Themes:** Use the theme toggle in the sidebar to switch between light and dark modes.
+1. **Add a Pollinations Key:** In Configuration, enter a browser-safe publishable key beginning with `pk_`. Create one at [enter.pollinations.ai](https://enter.pollinations.ai). Never put an `sk_` secret key in a browser application.
+2. **Select a Model:** Use the settings panel on the right to choose a model loaded from the current Pollinations catalog.
+3. **Start Chatting:** Type your message and press Enter or click the send button.
+4. **Add Images:** Click the attachment button to add images to your messages for multimodal conversations.
+5. **Manage Sessions:** Create and switch between independent chat sessions from the sidebar.
+6. **Customize Behavior:** Set system instructions in the settings panel to guide how the AI responds.
+7. **Switch Themes:** Use the theme toggle in the sidebar to switch between light and dark modes.
 
-## Environment Variables
-
-This project requires the following environment variable to be set:
-
-*   `API_KEY`: Your Pollinations API key for authenticating requests to the Pollinations API.
-
-**Note:** If no API key is provided, the application will still function but may have limited capabilities or rate limiting.
+Synapse sends chat requests to `https://gen.pollinations.ai/v1/chat/completions` using Bearer authentication. The publishable key is stored only in the current browser.
 
 ## Build for Production
 
@@ -94,11 +82,7 @@ Deploying Synapse to Vercel is straightforward:
     *   Sign up or log in to your Vercel account.
     *   Create a new project by importing your Git repository. Vercel will automatically detect the Vite framework.
 
-2.  **Configure Environment Variables:**
-    *   In your Vercel project settings, navigate to "Environment Variables".
-    *   Add a new environment variable named `API_KEY` and paste your valid Pollinations API key.
-
-3.  **Build and Deploy:**
+2.  **Build and Deploy:**
     *   Vercel will automatically build and deploy your project using the `npm run build` command.
 
 Your project should now be deployed and accessible via a Vercel URL.
